@@ -16,10 +16,11 @@ import pygame
 import sys
 import random
 import math
-import noise
+import noise  # type: ignore
+from typing import Any, Dict
 
 # ==================== CONSTANTS ====================
-VIEW_SIZE   = 42        # ← Screen pixels per logical tile (increased for bigger tiles/units)
+view_size   = 42        # ← Screen pixels per logical tile (increased for bigger tiles/units)
 MAP_WIDTH   = 200
 MAP_HEIGHT  = 120
 FPS         = 60
@@ -91,7 +92,7 @@ def generate_map(mode: str = 'random') -> None:
                 nx = (x / MAP_WIDTH - 0.5) * freq + offset_x
                 ny = (y / MAP_HEIGHT - 0.5) * freq + offset_y
                 # Perlin noise (smoother, more natural continents)
-                val = noise.pnoise2(nx, ny, octaves=octave+1, persistence=0.5, lacunarity=2.0, repeatx=MAP_WIDTH, repeaty=MAP_HEIGHT)
+                val: float = noise.pnoise2(nx, ny, octaves=octave+1, persistence=0.5, lacunarity=2.0, repeatx=MAP_WIDTH, repeaty=MAP_HEIGHT)  # type: ignore
                 val = (val + 1.0) / 2.0  # Normalize to 0-1
                 height[y][x] += val * amp
 
@@ -160,7 +161,7 @@ def generate_map(mode: str = 'random') -> None:
             ay = random.randint(5, MAP_HEIGHT-6)
             if game_map[ay][ax] != 'water' and game_map[ay][ax] != 'mountain':
                 game_map[ay][ax] = 'plains'
-                g['cities'].append({
+                g['cities'].append({  # type: ignore
                     'x': ax, 'y': ay, 'size': 1,
                     'name': f'{ai_id.upper()} City',
                     'owner': ai_id,
@@ -168,7 +169,7 @@ def generate_map(mode: str = 'random') -> None:
                     'production_queue': ['warrior'],
                     'current_production': None,
                 })
-                g['units'].append({
+                g['units'].append({  # type: ignore
                     'x': ax, 'y': ay,
                     'type': 'settler', 'owner': ai_id,
                     'selected': False, 'moves_left': 2, 'strength': 1,
@@ -176,8 +177,8 @@ def generate_map(mode: str = 'random') -> None:
                 break
 
     # Center camera on player
-    g['camera_x'] = float(max(0, px * VIEW_SIZE - 640))
-    g['camera_y'] = float(max(0, py * VIEW_SIZE - 365))
+    g['camera_x'] = float(max(0, px * view_size - 640))
+    g['camera_y'] = float(max(0, py * view_size - 365))
 
 # ==================== END TURN ====================
 def end_turn() -> None:
@@ -263,16 +264,16 @@ class Button:
 def clamp_camera(sw: int, sh: int) -> None:
     vw = sw
     vh = sh - UI_H
-    g['camera_x'] = max(0.0, min(g['camera_x'], MAP_WIDTH  * VIEW_SIZE - vw))
-    g['camera_y'] = max(0.0, min(g['camera_y'], MAP_HEIGHT * VIEW_SIZE - vh))
+    g['camera_x'] = max(0.0, min(g['camera_x'], MAP_WIDTH  * view_size - vw))
+    g['camera_y'] = max(0.0, min(g['camera_y'], MAP_HEIGHT * view_size - vh))
 
 def tile_at(mx: int, my: int) -> Tuple[int, int]:
     return (
-        int((mx + g['camera_x']) // VIEW_SIZE),
-        int((my + g['camera_y']) // VIEW_SIZE),
+        int((mx + g['camera_x']) // view_size),
+        int((my + g['camera_y']) // view_size),
     )
 
-def draw_procedural_flag(screen, owner, x, y, size):
+def draw_procedural_flag(screen: pygame.Surface, owner: str, x: int, y: int, size: int) -> None:
     if owner == 'player':
         col = (255, 220, 0)  # Yellow
     elif owner.startswith('ai'):
@@ -286,7 +287,7 @@ def draw_procedural_flag(screen, owner, x, y, size):
     # Triangle emblem
     pygame.draw.polygon(screen, (0, 0, 0), [(x+2, y+2), (x+size-2, y+2), (x+size//2, y+size//2 - 2)])
 
-def draw_procedural_unit(screen, u_type, owner, sx, sy, size):
+def draw_procedural_unit(screen: pygame.Surface, u_type: str, owner: str, sx: int, sy: int, size: int) -> None:
     col = {'player': (255, 204, 0), 'ai': (68, 136, 255), 'barbarian': (187, 0, 187)}.get(owner, (200, 200, 200))
     half = size // 2
     if u_type == 'settler':
@@ -313,7 +314,7 @@ def draw_procedural_unit(screen, u_type, owner, sx, sy, size):
 
 # ==================== MAIN ====================
 def main() -> None:
-    global VIEW_SIZE
+    global view_size
     pygame.init()
     screen: pygame.Surface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
     pygame.display.set_caption('Civ 1 Better  —  Python/Pygame Edition')
@@ -334,11 +335,9 @@ def main() -> None:
     generate_map(MAP_MODES[mode_idx])
 
     # ---- Asset Loading ----
-    button_base = None
-    flags = {}
-    unit_surfs = {}
+    flags: Dict[str, pygame.Surface] = {}
+    unit_surfs: Dict[str, pygame.Surface] = {}
     city_surf = None
-    yield_surfs = {}
 
     # ---- Build buttons ----
     def make_buttons(sh: int) -> Dict[str, Button]:
@@ -421,27 +420,27 @@ def main() -> None:
                             g['units'] = [u for u in g['units'] if u is not settler]
 
                 # Pan controls with arrow keys
-                pan_speed = VIEW_SIZE  # 1 tile per press
+                pan_speed = view_size  # 1 tile per press
                 if ev.key == pygame.K_LEFT:
                     g['camera_x'] = max(0, g['camera_x'] - pan_speed)
                 elif ev.key == pygame.K_RIGHT:
-                    g['camera_x'] = min(MAP_WIDTH * VIEW_SIZE - sw, g['camera_x'] + pan_speed)
+                    g['camera_x'] = min(MAP_WIDTH * view_size - sw, g['camera_x'] + pan_speed)
                 elif ev.key == pygame.K_UP:
                     g['camera_y'] = max(0, g['camera_y'] - pan_speed)
                 elif ev.key == pygame.K_DOWN:
-                    g['camera_y'] = min(MAP_HEIGHT * VIEW_SIZE - vh, g['camera_y'] + pan_speed)
+                    g['camera_y'] = min(MAP_HEIGHT * view_size - vh, g['camera_y'] + pan_speed)
                 clamp_camera(sw, sh)  # Ensure bounds after pan
 
             elif ev.type == pygame.MOUSEWHEEL:
-                old_vs: int = VIEW_SIZE
-                new_vs: int = max(6, min(80, VIEW_SIZE + ev.y * 3))
+                old_vs: int = view_size
+                new_vs: int = max(6, min(80, view_size + ev.y * 3))
                 if new_vs != old_vs:
                     cx_tile = (g['camera_x'] + mx) / old_vs
                     cy_tile = (g['camera_y'] + my) / old_vs
                     g['camera_x'] = cx_tile * new_vs - mx
                     g['camera_y'] = cy_tile * new_vs - my
                     clamp_camera(sw, sh)
-                    VIEW_SIZE = new_vs
+                    view_size = new_vs
 
             elif ev.type == pygame.MOUSEMOTION:
                 if pan_active and pygame.mouse.get_pressed()[0]:
@@ -559,77 +558,76 @@ def main() -> None:
         screen.fill((8, 35, 110))  # deep ocean background
 
         # Viewport-culled direct tile drawing
-        start_x = max(0, cam_ix // VIEW_SIZE - 1)
-        start_y = max(0, cam_iy // VIEW_SIZE - 1)
-        end_x   = min(MAP_WIDTH,  (cam_ix + vw) // VIEW_SIZE + 2)
-        end_y   = min(MAP_HEIGHT, (cam_iy + vh) // VIEW_SIZE + 2)
+        start_x = max(0, cam_ix // view_size - 1)
+        start_y = max(0, cam_iy // view_size - 1)
+        end_x   = min(MAP_WIDTH,  (cam_ix + vw) // view_size + 2)
+        end_y   = min(MAP_HEIGHT, (cam_iy + vh) // view_size + 2)
         grid_col = (35, 45, 55)
 
         for ty2 in range(start_y, end_y):
             for tx2 in range(start_x, end_x):
                 color = TERRAIN_COLORS.get(g['map'][ty2][tx2], (80, 80, 80))
-                sx = tx2 * VIEW_SIZE - cam_ix
-                sy = ty2 * VIEW_SIZE - cam_iy
+                sx = tx2 * view_size - cam_ix
+                sy = ty2 * view_size - cam_iy
                 # Add subtle terrain details for more visual depth
                 if g['map'][ty2][tx2] == 'water':
                     # Waves: lighter horizontal lines
-                    for wave_y in range(0, VIEW_SIZE, 4):
+                    for wave_y in range(0, view_size, 4):
                         wave_alpha = 0.3 if wave_y % 8 < 4 else 0.1
                         wave_col = tuple(int(c * (1 - wave_alpha)) for c in color)
-                        pygame.draw.line(screen, wave_col, (sx, sy + wave_y), (sx + VIEW_SIZE, sy + wave_y))
+                        pygame.draw.line(screen, wave_col, (sx, sy + wave_y), (sx + view_size, sy + wave_y))
                 elif g['map'][ty2][tx2] == 'plains':
                     # Grass patches: small green dots
                     for _ in range(5):
-                        px = sx + random.randint(2, VIEW_SIZE - 2)
-                        py = sy + random.randint(2, VIEW_SIZE - 2)
+                        px = sx + random.randint(2, view_size - 2)
+                        py = sy + random.randint(2, view_size - 2)
                         pygame.draw.circle(screen, (34, 139, 34), (int(px), int(py)), 1)
                 elif g['map'][ty2][tx2] == 'forest':
                     # Tree trunks/leaves: vertical lines + green tops
-                    trunk_h = VIEW_SIZE // 3
-                    leaf_h = VIEW_SIZE - trunk_h
+                    trunk_h = view_size // 3
+                    leaf_h = view_size - trunk_h
                     trunk_col = (101, 67, 33)
                     leaf_col = (0, 100, 0)
                     trunk_w = 2
                     # Trunk
-                    pygame.draw.rect(screen, trunk_col, (sx + VIEW_SIZE//2 - trunk_w//2, sy + leaf_h, trunk_w, trunk_h))
+                    pygame.draw.rect(screen, trunk_col, (sx + view_size//2 - trunk_w//2, sy + leaf_h, trunk_w, trunk_h))
                     # Leaves
-                    pygame.draw.circle(screen, leaf_col, (sx + VIEW_SIZE//2, sy + leaf_h//2), VIEW_SIZE//3)
+                    pygame.draw.circle(screen, leaf_col, (sx + view_size//2, sy + leaf_h//2), view_size//3)
                 elif g['map'][ty2][tx2] == 'hills':
                     # Hill contour: gradient circle
-                    hill_surf = pygame.Surface((VIEW_SIZE, VIEW_SIZE), pygame.SRCALPHA)
-                    for r in range(VIEW_SIZE//2, 0, -1):
-                        alpha = int(255 * (r / (VIEW_SIZE//2)))
+                    hill_surf = pygame.Surface((view_size, view_size), pygame.SRCALPHA)
+                    for r in range(view_size//2, 0, -1):
+                        alpha = int(255 * (r / (view_size//2)))
                         col = (*color, alpha)
-                        pygame.draw.circle(hill_surf, col, (VIEW_SIZE//2, VIEW_SIZE//2), r)
+                        pygame.draw.circle(hill_surf, col, (view_size//2, view_size//2), r)
                     screen.blit(hill_surf, (sx, sy))
                 elif g['map'][ty2][tx2] == 'mountain':
                     # Peaks: gray triangles
-                    peak_h = VIEW_SIZE * 2 // 3
-                    base_w = VIEW_SIZE
+                    peak_h = view_size * 2 // 3
                     peak_col = (169, 169, 169)
                     pygame.draw.polygon(screen, peak_col, [
-                        (sx + VIEW_SIZE//2, sy + VIEW_SIZE - peak_h),
-                        (sx, sy + VIEW_SIZE),
-                        (sx + VIEW_SIZE, sy + VIEW_SIZE)
+                        (sx + view_size//2, sy + view_size - peak_h),
+                        (sx, sy + view_size),
+                        (sx + view_size, sy + view_size)
                     ])
                 elif g['map'][ty2][tx2] == 'tundra':
                     # Snow patches: white dots
                     for _ in range(3):
-                        px = sx + random.randint(2, VIEW_SIZE - 2)
-                        py = sy + random.randint(2, VIEW_SIZE - 2)
+                        px = sx + random.randint(2, view_size - 2)
+                        py = sy + random.randint(2, view_size - 2)
                         pygame.draw.circle(screen, (255, 255, 255), (int(px), int(py)), 2)
                 elif g['map'][ty2][tx2] == 'jungle':
                     # Dense leaves: overlapping green circles
                     for _ in range(8):
-                        cx = sx + random.randint(0, VIEW_SIZE)
-                        cy = sy + random.randint(0, VIEW_SIZE)
+                        cx = sx + random.randint(0, view_size)
+                        cy = sy + random.randint(0, view_size)
                         r = random.randint(2, 5)
                         pygame.draw.circle(screen, (0, 128, 0), (cx, cy), r)
                 
                 # Base tile fill (behind details)
-                pygame.draw.rect(screen, color, (sx, sy, VIEW_SIZE, VIEW_SIZE))
-                if VIEW_SIZE >= 8:
-                    pygame.draw.rect(screen, grid_col, (sx, sy, VIEW_SIZE, VIEW_SIZE), 1)
+                pygame.draw.rect(screen, color, (sx, sy, view_size, view_size))
+                if view_size >= 8:
+                    pygame.draw.rect(screen, grid_col, (sx, sy, view_size, view_size), 1)
 
         # Draw directional arrows for moves (if unit selected and hovering adjacent)
         sel = next((u for u in g['units'] if u['selected']), None)
@@ -637,34 +635,35 @@ def main() -> None:
             # Calculate target tile position
             ddx, ddy = {'right': (1, 0), 'left': (-1, 0), 'down': (0, 1), 'up': (0, -1)}[hovered_dir]
             tx, ty = sel['x'] + ddx, sel['y'] + ddy
-            tsx = tx * VIEW_SIZE - cam_ix
-            tsy = ty * VIEW_SIZE - cam_iy
-            arrow_size = VIEW_SIZE // 4
+            tsx = tx * view_size - cam_ix
+            tsy = ty * view_size - cam_iy
+            arrow_size = view_size // 4
             arrow_col = (0, 255, 0)  # Green for valid move
             # Simple arrow polygon (pointing toward direction)
+            arrow_points = []
             if hovered_dir == 'right':
-                arrow_points = [(tsx + 5, tsy + VIEW_SIZE//2 - arrow_size//2), (tsx + 5 + arrow_size, tsy + VIEW_SIZE//2), (tsx + 5, tsy + VIEW_SIZE//2 + arrow_size//2)]
+                arrow_points = [(tsx + 5, tsy + view_size//2 - arrow_size//2), (tsx + 5 + arrow_size, tsy + view_size//2), (tsx + 5, tsy + view_size//2 + arrow_size//2)]
             elif hovered_dir == 'left':
-                arrow_points = [(tsx + VIEW_SIZE - 5, tsy + VIEW_SIZE//2 - arrow_size//2), (tsx + VIEW_SIZE - 5 - arrow_size, tsy + VIEW_SIZE//2), (tsx + VIEW_SIZE - 5, tsy + VIEW_SIZE//2 + arrow_size//2)]
+                arrow_points = [(tsx + view_size - 5, tsy + view_size//2 - arrow_size//2), (tsx + view_size - 5 - arrow_size, tsy + view_size//2), (tsx + view_size - 5, tsy + view_size//2 + arrow_size//2)]
             elif hovered_dir == 'down':
-                arrow_points = [(tsx + VIEW_SIZE//2 - arrow_size//2, tsy + VIEW_SIZE - 5), (tsx + VIEW_SIZE//2, tsy + VIEW_SIZE - 5 - arrow_size), (tsx + VIEW_SIZE//2 + arrow_size//2, tsy + VIEW_SIZE - 5)]
+                arrow_points = [(tsx + view_size//2 - arrow_size//2, tsy + view_size - 5), (tsx + view_size//2, tsy + view_size - 5 - arrow_size), (tsx + view_size//2 + arrow_size//2, tsy + view_size - 5)]
             elif hovered_dir == 'up':
-                arrow_points = [(tsx + VIEW_SIZE//2 - arrow_size//2, tsy + 5), (tsx + VIEW_SIZE//2, tsy + 5 + arrow_size), (tsx + VIEW_SIZE//2 + arrow_size//2, tsy + 5)]
+                arrow_points = [(tsx + view_size//2 - arrow_size//2, tsy + 5), (tsx + view_size//2, tsy + 5 + arrow_size), (tsx + view_size//2 + arrow_size//2, tsy + 5)]
             pygame.draw.polygon(screen, arrow_col, arrow_points)
             # Outline for visibility
             pygame.draw.polygon(screen, (0, 0, 0), arrow_points, 1)
 
         # Draw units (viewport-culled)
         for u in g['units']:
-            sx = u['x'] * VIEW_SIZE + VIEW_SIZE // 2 - cam_ix
-            sy = u['y'] * VIEW_SIZE + VIEW_SIZE // 2 - cam_iy
-            if not (-VIEW_SIZE < sx < vw + VIEW_SIZE and
-                    -VIEW_SIZE < sy < vh + VIEW_SIZE):
+            sx = u['x'] * view_size + view_size // 2 - cam_ix
+            sy = u['y'] * view_size + view_size // 2 - cam_iy
+            if not (-view_size < sx < vw + view_size and
+                    -view_size < sy < vh + view_size):
                 continue
             key = f"{u['owner']}_{u['type']}"
             if key in unit_surfs:
-                screen.blit(unit_surfs[key], (sx - VIEW_SIZE//2, sy - VIEW_SIZE//2))
-                size = VIEW_SIZE
+                screen.blit(unit_surfs[key], (sx - view_size//2, sy - view_size//2))
+                size = view_size
             else:
                 # Fallback circle
                 if u['owner'] == 'player':
@@ -675,7 +674,7 @@ def main() -> None:
                     col = (187,   0, 187)
                 else:
                     col = (200, 200, 200)
-                r = max(2, int(VIEW_SIZE * 0.38))
+                r = max(2, int(view_size * 0.38))
                 pygame.draw.circle(screen, col, (sx, sy), r)
                 size = r * 2
 
@@ -683,16 +682,16 @@ def main() -> None:
                 pygame.draw.circle(screen, (255, 255, 0), (sx, sy), size // 2 + 2, 2)
 
             # Flag overlay
-            flag_size = 16
             if u['owner'] in flags:
-                screen.blit(flags[u['owner']], (sx - flag_size//2, sy - size//2 - flag_size - 2))
+                screen.blit(flags[u['owner']], (sx - 8, sy - size//2 - 18))
             else:
-                draw_procedural_flag(screen, u['owner'], sx - flag_size//2, sy - size//2 - flag_size - 2, flag_size)
+                draw_procedural_flag(screen, u['owner'], sx - 8, sy - size//2 - 18, 16)
 
+        flag_size = 16
         # Draw cities (viewport-culled)
         for c in g['cities']:
-            cx = c['x'] * VIEW_SIZE + VIEW_SIZE // 2 - cam_ix
-            cy = c['y'] * VIEW_SIZE + VIEW_SIZE // 2 - cam_iy
+            cx = c['x'] * view_size + view_size // 2 - cam_ix
+            cy = c['y'] * view_size + view_size // 2 - cam_iy
             if not (-20 < cx < vw + 20 and -20 < cy < vh + 20):
                 continue
             if city_surf:
@@ -700,7 +699,7 @@ def main() -> None:
                 icon = city_surf.copy()
                 tint = (255, 220, 100) if c['owner'] == 'player' else (130, 180, 255)
                 icon.fill(tint, special_flags=pygame.BLEND_MULT)
-                screen.blit(icon, (cx - VIEW_SIZE//2, cy - VIEW_SIZE//2))
+                screen.blit(icon, (cx - view_size//2, cy - view_size//2))
             else:
                 # Fallback rect
                 bg_col = (255, 220, 100) if c['owner'] == 'player' else (130, 180, 255)

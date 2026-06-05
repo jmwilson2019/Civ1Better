@@ -1,0 +1,157 @@
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #111;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#gameContainer {
+    flex: 1;
+    background: #000;
+    overflow: hidden;
+    position: relative;
+}
+
+canvas {
+    image-rendering: pixelated;
+    border: none;
+    display: block;
+}
+
+#ui {
+    padding: 10px 15px;
+    background: #222;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+#ui label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+button {
+    padding: 8px 16px;
+    background: #444;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #666;
+}
+
+button:active {
+    background: #888;
+}
+
+#turnCounter, #techDisplay {
+    font-weight: bold;
+    min-width: 120px;
+}
+
+#tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    pointer-events: none;
+    display: none;
+    font-size: 13px;
+    z-index: 100;
+    box-shadow: 0 0 8px rgba(0,0,0,0.6);
+}
+
+#ui {
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-family: Arial;
+}
+
+.ui-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#combatLog {
+    margin-top: 10px;
+    font-size: 12px;
+    max-height: 60px;
+    overflow-y: auto;
+}
+
+#diplomacy {
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+#endTurnBtn {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+#cityMenu {
+    position: fixed;
+    top: 60px;
+    right: 10px;
+    background: rgba(0,0,0,0.95);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    display: none;
+    min-width: 280px;
+    max-height: 80vh;
+    overflow-y: auto;
+    font-family: Arial;
+    z-index: 1001;
+    border: 2px solid #4CAF50;
+    pointer-events: auto;
+}
+
+#cityMenu button {
+    pointer-events: auto;
+}
+
+#cityName {
+    margin-top: 0;
+    color: #4CAF50;
+}
+
+#changeProduction {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 3px;
+}
+
+#closeCityMenu {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 100%;
+}

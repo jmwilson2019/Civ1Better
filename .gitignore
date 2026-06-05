@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec.bak
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Large media / binary assets (excluded from repo to stay lightweight)
+*.mp4
+*.mov
+*.zip
+assets/ui-pack.zip
+assets/*.mp4
+assets/*.jpg
+assets/*.jpeg
+assets/grok-video-*
+
+# Logs / temp
+*.log
+*.tmp
+.sixth/

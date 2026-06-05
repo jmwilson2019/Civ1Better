@@ -4,74 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Civ 1 Better</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #111;
-            color: #eee;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-        #gameContainer {
-            flex: 1;
-            background: #000;
-            overflow: hidden;
-            position: relative;
-        }
-        canvas {
-            image-rendering: pixelated;
-            border: none;
-            display: block;
-        }
-        #ui {
-            padding: 10px 15px;
-            background: #222;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            font-size: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-        #ui label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        button {
-            padding: 8px 16px;
-            background: #444;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #666;
-        }
-        button:active {
-            background: #888;
-        }
-        #turnCounter, #techDisplay {
-            font-weight: bold;
-            min-width: 120px;
-        }
-        #tooltip {
-            position: absolute;
-            background: rgba(0,0,0,0.85);
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 4px;
-            pointer-events: none;
-            display: none;
-            font-size: 13px;
-            z-index: 100;
-            box-shadow: 0 0 8px rgba(0,0,0,0.6);
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="gameContainer">
@@ -79,21 +12,55 @@
     </div>
     
     <div id="ui">
-        <label>Map: 
-            <select id="mapMode">
-                <option value="random">Random</option>
-                <option value="continents">Earth-like</option>
-                <option value="landlocked">Landlocked</option>
-                <option value="islands">Islands</option>
-            </select>
-        </label>
-        
-        <button id="newGameBtn">Start New Game</button>
-        <button id="newMapBtn">New Map</button>
+        <div class="ui-header">
+            <div>
+                <select id="mapMode" title="Map Mode">
+                    <option value="random">Random</option>
+                    <option value="continents">Continents</option>
+                    <option value="islands">Islands</option>
+                    <option value="landlocked">Landlocked</option>
+                </select>
+                <button id="newMapBtn">New Map</button>
+                <button id="newGameBtn">New Game</button>
+            </div>
+            <div id="turnCounter">Turn: 1</div>
+            <div id="techDisplay">Tech: 0 (None) | Research: 0/400</div>
+            <div id="goldDisplay">Gold: 0</div>
+        </div>
+        <div id="combatLog"></div>
+        <div id="diplomacy"></div>
         <button id="endTurnBtn">End Turn</button>
-        
-        <span id="turnCounter">Turn: 1</span>
-        <span id="techDisplay">Tech: 0 | Research: 0</span>
+    </div>
+
+    <div id="cityMenu">
+        <h3 id="cityName">City Name</h3>
+        <div id="cityStats" style="margin-bottom: 15px;">
+            <p><strong>Population:</strong> <span id="cityPop">1</span></p>
+            <p><strong>Food:</strong> <span id="cityFood">0</span> / <span id="foodNeeded">10</span></p>
+            <p><strong>Shields:</strong> <span id="cityShields">0</span></p>
+            <p><strong>Revenue:</strong> <span id="cityRevenue">0</span> gold</p>
+            <p><strong>Happiness:</strong> <span id="cityHappiness">Content</span></p>
+            <p><strong>Workers:</strong> <span id="cityWorkers">1</span></p>
+            <p><strong>Tax Collectors:</strong> <span id="cityTaxCollectors">0</span></p>
+            <p><strong>Scientists:</strong> <span id="cityScientists">0</span></p>
+            <p><strong>Entertainers:</strong> <span id="cityEntertainers">0</span></p>
+            <div id="citizenControls">
+                <h5>Citizen Management</h5>
+                <p>Tax Collectors: <button id="decTax">-</button> <button id="incTax">+</button></p>
+                <p>Scientists: <button id="decSci">-</button> <button id="incSci">+</button></p>
+                <p>Entertainers: <button id="decEnt">-</button> <button id="incEnt">+</button></p>
+            </div>
+            <p><strong>Productivity Bonus:</strong> <span id="cityProductivity">0%</span></p>
+            <p><strong>Effective Shields/Turn:</strong> <span id="cityEffectiveShields">1.0</span></p>
+        </div>
+        <div id="cityProduction" style="margin-bottom: 15px;">
+            <h4>Production</h4>
+            <p><strong>Currently Building:</strong> <span id="currentBuilding">Nothing</span></p>
+            <div id="productionQueue"></div>
+            <button id="changeProduction">Change Production</button>
+        </div>
+        <div id="cityBuildings"></div>
+        <button id="closeCityMenu">Close</button>
     </div>
 
     <div id="tooltip"></div>
