@@ -1,0 +1,49 @@
+name: seraphina-algora CI
+
+on:
+  push:
+    paths:
+      - "seraphina-algora/**"
+      - ".github/workflows/seraphina-algora-ci.yml"
+  pull_request:
+    paths:
+      - "seraphina-algora/**"
+      - ".github/workflows/seraphina-algora-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+defaults:
+  run:
+    working-directory: seraphina-algora
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package (editable, no extras)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Run unittest discover
+        run: python -m unittest discover -s tests -v
+
+      - name: Sanity check CLI --version
+        run: seraphina-algora --version

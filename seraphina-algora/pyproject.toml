@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seraphina-algora"
+version = "0.1.0"
+description = "Seraphina Algora Tracker - deterministic, stdlib-only bounty radar for the Algora platform."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Jason Wilson" }]
+keywords = ["algora", "bounty", "github", "tracker", "oss"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development",
+  "Topic :: Utilities",
+]
+dependencies = []
+
+[project.optional-dependencies]
+# No optional groups yet; placeholder for future webhook/issue-comment sinks
+# that may pull in third-party libs. Keep core stdlib-only.
+
+[project.scripts]
+seraphina-algora = "seraphina_algora.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jmwilson2019/Civ1Better/tree/main/seraphina-algora"
+Issues = "https://github.com/jmwilson2019/Civ1Better/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["seraphina_algora*"]
+exclude = ["tests*"]

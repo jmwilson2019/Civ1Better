@@ -1,0 +1,70 @@
+name: seraphina-algora Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "seraphina-algora-v*"
+  workflow_dispatch:
+
+# Default to read-only; the publish job overrides with id-token: write.
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+defaults:
+  run:
+    working-directory: seraphina-algora
+
+jobs:
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build
+
+      - name: Build sdist + wheel
+        run: |
+          rm -rf dist-pypi
+          python -m build --outdir dist-pypi
+          ls -la dist-pypi/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: seraphina-algora-dist
+          path: seraphina-algora/dist-pypi/
+
+  publish:
+    name: Publish (Trusted Publisher / OIDC)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Download built distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: seraphina-algora-dist
+          path: dist-pypi/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist-pypi/
+        # PyPI Trusted Publisher must be configured against:
+        #   project       : seraphina-algora
+        #   owner/repo    : jmwilson2019/Civ1Better
+        #   workflow      : seraphina-algora-publish.yml
+        #   environment   : (blank)
