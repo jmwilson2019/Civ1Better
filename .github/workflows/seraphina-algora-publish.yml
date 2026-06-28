@@ -41,7 +41,7 @@ jobs:
           ls -la dist-pypi/
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: seraphina-algora-dist
           path: seraphina-algora/dist-pypi/
@@ -54,7 +54,7 @@ jobs:
       id-token: write
     steps:
       - name: Download built distributions
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: seraphina-algora-dist
           path: dist-pypi/
