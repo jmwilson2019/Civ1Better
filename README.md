@@ -68,6 +68,14 @@ Both versions share similar features and gameplay mechanics.
 
 A chronological log of what has been built so far. Newest at the top.
 
+### 2026-07-01 — Glyph vault reference model (implementation)
+- Added a new `vault/` reference implementation for a Glyph-aligned key vault model with:
+  - `GLYPH_HOME`/`D:/glyph-dataland` rooted storage,
+  - deterministic envelope + index SHA-256 verification,
+  - role-gated lifecycle operations (`create/read/rotate/revoke/expire`),
+  - append-only hash-chained audit ledger,
+  - schema files and cross-repo integration contract notes.
+
 ### 2026-07-01 — Seraphina AGI v1.0.8 audit (assessment)
 - Audited `SynerGro-AI/Seraphina.AGIv1.0.8` across core surfaces: packaging metadata (`pyproject.toml`), AGI runtime code (`seraphina/`), and Glyph network/install paths (`glyph/glyph/resolver.py`, `glyph/glyph/remote.py`).
 - Baseline posture is solid: stdlib-only dependency model, optional Grok path explicitly opt-in, remote bridge enforces `http/https` schemes, and remote package downloads support SHA256 verification.
