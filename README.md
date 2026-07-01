@@ -68,6 +68,19 @@ Both versions share similar features and gameplay mechanics.
 
 A chronological log of what has been built so far. Newest at the top.
 
+### 2026-07-01 — Seraphina AGI v1.0.8 audit (assessment)
+- Audited `SynerGro-AI/Seraphina.AGIv1.0.8` across core surfaces: packaging metadata (`pyproject.toml`), AGI runtime code (`seraphina/`), and Glyph network/install paths (`glyph/glyph/resolver.py`, `glyph/glyph/remote.py`).
+- Baseline posture is solid: stdlib-only dependency model, optional Grok path explicitly opt-in, remote bridge enforces `http/https` schemes, and remote package downloads support SHA256 verification.
+- Behavior/control strengths confirmed: deterministic-first architecture, explicit remote registration, and guarded request timeouts in network paths.
+- Key hardening gaps: `seraphina/triad.py` still uses `eval()` on formula strings (with restricted builtins but still dynamic execution risk) and `seraphina/language_bridge.py` executes Node via `subprocess.run` without additional policy controls beyond timeout.
+- Recommendation: replace dynamic `eval` formula handling with explicit parser/math dispatch, and gate subprocess bridges behind an allowlisted runtime policy toggle in the CLI/config layer.
+
+### 2026-07-01 — Seraphina Glyph behavior-controls audit (assessment)
+- Audited `SynerGro-AI/Seraphina.AGIv1.0.8` Glyph control points: manifest validation (`glyph/glyph/manifest.py`), install gate flow (`glyph/glyph/operations.py` + `glyph/glyph/gate.py`), runtime loader controls (`glyph/glyph/sandbox.py`), and event signaling (`glyph/glyph/signals.py`).
+- Current controls are strong on baseline policy enforcement: strict manifest field checks, deny-by-default gate for `risk_level="high"`, optional verifier path for non-allowed risks, zip-slip-safe extraction, and integrity/runtime compatibility checks before install.
+- Main exposure area remains execution isolation: the sandbox explicitly states it is not a hard security boundary and relies on filtered builtins/import allowlists rather than process/container isolation.
+- Additional hardening opportunities: sign/attest trust metadata (`.glyph-meta/trust.json`) to reduce local tampering risk, and pass a package-specific install path to external verifiers instead of `Path(".")` to make verifier context explicit.
+
 ### 2026-06-04 — Repository published
 - Initialized public GitHub repo `jmwilson2019/Civ1Better`.
 - Added `.gitignore` covering Python (`__pycache__/`), PyInstaller (`build/`, `dist/`), editor (`.vscode/`), and large media (`*.mp4`, `*.zip`, big `*.jpg` assets).
